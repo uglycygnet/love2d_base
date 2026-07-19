@@ -8,7 +8,10 @@ local title = {}
 function title:enter()
     self.showText = true
     
-    -- Create a continuous loop that toggles text visibility every 0.6 seconds
+    -- Clear any old active players if returning to title screen
+    input.players = {}
+    input.joinedDevices = {}
+    
     Timer.every(0.6, function()
         self.showText = not self.showText
     end)
@@ -17,31 +20,37 @@ end
 function title:update(dt)
     Timer.update(dt)
     
-    -- Loop through all active player instances so ANY connected controller/keyboard can skip the title
-    for _, player in ipairs(input.players) do
-        if player:pressed('action') or player:pressed('start') then
+    -- 1. Check if Keyboard pressed Enter/Return to claim Player 1
+    if love.keyboard.isDown("return") or love.keyboard.isDown("space") then
+        input:registerPlayer("keyboard", nil)
+        Gamestate.switch(MenuState)
+        return
+    end
+    
+    -- 2. Check if ANY connected controller pressed Start or A to claim Player 1
+    local joysticks = love.joystick.getJoysticks()
+    for _, joystick in ipairs(joysticks) do
+        if joystick:isGamepadDown("start") or joystick:isGamepadDown("a") then
+            input:registerPlayer("controller", joystick)
             Gamestate.switch(MenuState)
-            break -- Stop checking once a button press triggers the transition
+            return
         end
     end
 end
 
 function title:draw()
-    love.graphics.clear(0.02, 0.02, 0.05) -- Very dark blue background
+    love.graphics.clear(0.02, 0.02, 0.05) 
     
-    -- Draw Main Game Title
     love.graphics.setNewFont(24)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf("MY EPIC GAME", 0, 80, 400, "center") -- 400 is virtual width
+    love.graphics.printf("MY EPIC GAME", 0, 80, 400, "center") 
     
-    -- Draw Blinking Subtext
     if self.showText then
         love.graphics.setNewFont(12)
         love.graphics.setColor(0.7, 0.7, 0.7)
         love.graphics.printf("PRESS START / ENTER", 0, 180, 400, "center")
     end
     
-    -- Clean up draw color
     love.graphics.setColor(1, 1, 1, 1)
 end
 

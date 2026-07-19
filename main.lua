@@ -14,7 +14,7 @@ local effect
 
 function love.load()
     -- Look for hardware and build the player inputs dynamically
-    input:initialize()
+    --input:initialize()
     
     
     -- Set up Push with your virtual resolution vs physical window size
@@ -36,7 +36,10 @@ function love.load()
 end
 
 function love.update(dt)
-    input:update() -- Keep Baton polling for inputs every frame
+     -- Only update Baton inputs if Player 1 has been registered
+    if #input.players > 0 then
+        input:update() 
+    end
 end
 
 -- Override love.draw so Moonshine wraps around whatever HUMP is currently drawing

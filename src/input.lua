@@ -1,46 +1,48 @@
 local baton = require "lib.baton"
-
 local input = {
-    players = {} -- This array will hold our individual player input objects
+  players = {},       
+  joinedDevices = {}  
 }
 
--- Your exact configuration blueprint, moved inside a reusable constructor function
-function input.createPlayerInstance(playerIndex, joystickDevice)
-    return baton.new({
-        controls = {
-            -- If it's Player 2+, we ignore keyboard bindings so they don't fight over the same keys
-            left   = { playerIndex == 1 and 'key:a' or nil, 'axis:leftx-', 'button:dpleft' },
-            right  = { playerIndex == 1 and 'key:d' or nil, 'joy:axis1+', 'axis:leftx+', 'button:dpright' },     
-            up     = { playerIndex == 1 and 'key:w' or nil, 'button:dpup', 'axis:lefty-', 'button:dpup' },        
-            down   = { playerIndex == 1 and 'key:s' or nil, 'joy:axis2+', 'axis:lefty+', 'button:dpdown' },      
-            action = { playerIndex == 1 and 'key:space' or nil, 'button:a' },
-            start  = { playerIndex == 1 and 'key:return' or nil, 'button:start' },
-        },
-        pairs = {
-            move = {'left', 'right', 'up', 'down'}
-        },
-        joystick = joystickDevice -- Directly links this instance to controller 1, 2, 3, etc.
-    })
+function input.createPlayerInstance(deviceType, joystickDevice)
+  return baton.new({
+    controls = {
+      left   = { deviceType == "keyboard" and "key:left" or nil,  "axis:leftx-", "button:dpleft" },
+      right  = { deviceType == "keyboard" and "key:right" or nil, "axis:leftx+", "button:dpright" },
+      up     = { deviceType == "keyboard" and "key:up" or nil,    "axis:lefty-", "button:dpup" },
+      down   = { deviceType == "keyboard" and "key:down" or nil,  "axis:lefty+", "button:dpdown" },
+      action = { deviceType == "keyboard" and "key:space" or nil, "button:a" },
+      start  = { deviceType == "keyboard" and "key:return" or nil, "button:start" },
+    },
+    pairs = { move = {"left", "right", "up", "down"} },
+    joystick = joystickDevice 
+  })
 end
 
--- A setup function you run once on game startup to look for controllers
-function input:initialize()
-    local connectedJoysticks = love.joystick.getJoysticks()
-    
-    -- Always create at least Player 1 (Keyboard defaults)
-    self.players[1] = self.createPlayerInstance(1, connectedJoysticks[1])
-    
-    -- Dynamically scale up for every extra controller found plugged in
-    for i = 2, #connectedJoysticks do
-        self.players[i] = self.createPlayerInstance(i, connectedJoysticks[i])
-    end
+function input:registerPlayer(deviceType, joystickDevice)
+  local deviceKey = joystickDevice or "keyboard"
+  
+  -- Prevent double registration
+  if self.joinedDevices[deviceKey] then return end 
+  
+  local nextIndex = #self.players + 1
+  self.joinedDevices[deviceKey] = true
+  self.players[nextIndex] = self.createPlayerInstance(deviceType, joystickDevice)
+  
+  print("Player " .. nextIndex .. " registered with " .. deviceType)
 end
 
--- A single utility call to update all identified players at once
 function input:update()
-    for _, playerInput in ipairs(self.players) do
-        playerInput:update()
+  -- Safe guard to prevent looping errors on empty sets
+  if not self.players then return end
+  
+  for _, playerInput in ipairs(self.players) do
+    -- Double check the Baton instance exists before calling update
+    if playerInput and playerInput.update then
+      playerInput:update()
     end
+  end
 end
 
 return input
+
