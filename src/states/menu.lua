@@ -6,9 +6,34 @@ function menu:enter()
     -- Define your exact list of choices
     self.options = {"Quick 1P Game", "Play", "Options", "Exit"}
     self.selected = 1 -- Start highlighted on item 1
+    self.timer = 0
+    self.showJoinText = true
 end
 
 function menu:update(dt)
+    -- update flashing join text
+    self.timer = (self.timer or 0) + dt
+    if self.timer >= 0.6 then
+        self.timer = self.timer - 0.6
+        self.showJoinText = not self.showJoinText
+    end
+
+    -- allow Player 2 to join via keyboard or controller while in menu
+    if #input.players < 2 then
+        -- keyboard join
+        if not input.joinedDevices["keyboard"] and (love.keyboard.isDown("return") or love.keyboard.isDown("space")) then
+            input:registerPlayer("keyboard", nil)
+        end
+
+        -- controller join
+        local joysticks = love.joystick.getJoysticks()
+        for _, joystick in ipairs(joysticks) do
+            if not input.joinedDevices[joystick] and (joystick:isGamepadDown("start") or joystick:isGamepadDown("a")) then
+                input:registerPlayer("controller", joystick)
+            end
+        end
+    end
+
     for _, player in ipairs(input.players) do
         if player:pressed('down') then
             print('down')
@@ -48,6 +73,14 @@ function menu:draw()
             love.graphics.setColor(1, 1, 1) -- White
             love.graphics.print(option, 320, startY + (i * spacing))
         end
+    end
+
+    -- flashing join prompt for Player 2 in top-right
+    if #input.players < 2 and self.showJoinText then
+        love.graphics.setNewFont(12)
+        love.graphics.setColor(0.9, 0.9, 0.9)
+        love.graphics.printf("Player 2 press START or ENTER to join", 0, 8, 380, "right")
+        love.graphics.setColor(1, 1, 1)
     end
 end
 
