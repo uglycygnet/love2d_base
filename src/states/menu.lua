@@ -1,4 +1,5 @@
 local input = require "src.input"
+local themes = require "src.preferences.themes"
 
 local menu = {}
 
@@ -56,7 +57,7 @@ end
 
 
 function menu:draw()
-    love.graphics.clear(0.05, 0.05, 0.05) -- dark background
+    love.graphics.clear(themes.current.background) -- dark background
     
     local startY = 200
     local spacing = 50
@@ -65,12 +66,12 @@ function menu:draw()
         if i == self.selected then
             -- Highlighted item: Larger font size (or simulated styling)
             love.graphics.setNewFont(24)
-            love.graphics.setColor(1, 1, 0) -- Yellow
+            love.graphics.setColor(themes.current.primary) 
             love.graphics.print("> " .. option, 300, startY + (i * spacing))
         else
             -- Normal item: Smaller font size
             love.graphics.setNewFont(16)
-            love.graphics.setColor(1, 1, 1) -- White
+            love.graphics.setColor(themes.current.secondary) -- White
             love.graphics.print(option, 320, startY + (i * spacing))
         end
     end
@@ -78,9 +79,9 @@ function menu:draw()
     -- flashing join prompt for Player 2 in top-right
     if #input.players < 2 and self.showJoinText then
         love.graphics.setNewFont(12)
-        love.graphics.setColor(0.9, 0.9, 0.9)
+        love.graphics.setColor(themes.current.secondary)
         love.graphics.printf("Player 2 press START or ENTER to join", 0, 8, 380, "right")
-        love.graphics.setColor(1, 1, 1)
+        love.graphics.setColor(1, 1, 1, 1)
     end
 end
 

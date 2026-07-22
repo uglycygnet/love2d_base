@@ -2,6 +2,7 @@ local Gamestate = require "lib.hump.gamestate"
 local Timer = require "lib.hump.timer"
 local input = require "src.input"
 local MenuState = require "src.states.menu"
+local themes = require "src.preferences.themes"
 
 local title = {}
 
@@ -39,15 +40,15 @@ function title:update(dt)
 end
 
 function title:draw()
-    love.graphics.clear(0.02, 0.02, 0.05) 
+    love.graphics.clear(themes.current.background) 
     
     love.graphics.setNewFont(24)
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(themes.current.primary)
     love.graphics.printf("MY EPIC GAME", 0, 80, 400, "center") 
     
     if self.showText then
         love.graphics.setNewFont(12)
-        love.graphics.setColor(0.7, 0.7, 0.7)
+        love.graphics.setColor(themes.current.secondary)
         love.graphics.printf("PRESS START / ENTER", 0, 180, 400, "center")
     end
     
