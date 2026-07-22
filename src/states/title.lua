@@ -25,9 +25,9 @@ function title:update(dt)
     
     -- 1. Check if Keyboard pressed Enter/Return to claim Player 1
     if love.keyboard.isDown("return") or love.keyboard.isDown("space") then
-        shakes.trigger(shakes.current.power,1.0,CurrentTime)
+        shakes.trigger(shakes.current.power,0.5,CurrentTime)
         input:registerPlayer("keyboard", nil)
-        Timer.after(1.0, function()
+        Timer.after(0.5, function()
             Gamestate.switch(MenuState)
         end)
         return
