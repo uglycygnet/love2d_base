@@ -5,17 +5,20 @@ local input = {
 }
 
 function input.createPlayerInstance(deviceType, joystickDevice)
+  local isKeyboard = deviceType == "keyboard"
+  local controls = {
+    left = isKeyboard and {"key:left", "axis:leftx-", "button:dpleft"} or {"axis:leftx-", "button:dpleft"},
+    right = isKeyboard and {"key:right", "axis:leftx+", "button:dpright"} or {"axis:leftx+", "button:dpright"},
+    up = isKeyboard and {"key:up", "axis:lefty-", "button:dpup"} or {"axis:lefty-", "button:dpup"},
+    down = isKeyboard and {"key:down", "axis:lefty+", "button:dpdown"} or {"axis:lefty+", "button:dpdown"},
+    action = isKeyboard and {"key:space", "button:a"} or {"button:a"},
+    start = isKeyboard and {"key:return", "button:start"} or {"button:start"},
+  }
+
   return baton.new({
-    controls = {
-      left   = { deviceType == "keyboard" and "key:left" or nil,  "axis:leftx-", "button:dpleft" },
-      right  = { deviceType == "keyboard" and "key:right" or nil, "axis:leftx+", "button:dpright" },
-      up     = { deviceType == "keyboard" and "key:up" or nil,    "axis:lefty-", "button:dpup" },
-      down   = { deviceType == "keyboard" and "key:down" or nil,  "axis:lefty+", "button:dpdown" },
-      action = { deviceType == "keyboard" and "key:space" or nil, "button:a" },
-      start  = { deviceType == "keyboard" and "key:return" or nil, "button:start" },
-    },
+    controls = controls,
     pairs = { move = {"left", "right", "up", "down"} },
-    joystick = joystickDevice 
+    joystick = joystickDevice,
   })
 end
 

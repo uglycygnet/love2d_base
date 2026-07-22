@@ -11,15 +11,18 @@ end
 function menu:update(dt)
     for _, player in ipairs(input.players) do
         if player:pressed('down') then
+            print('down')
             self.selected = self.selected + 1
             if self.selected > #self.options then self.selected = 1 end
         elseif player:pressed('up') then
+            print('up')
             self.selected = self.selected - 1
             if self.selected < 1 then self.selected = #self.options end
         end
         
         -- CHANGED: Use 'action' or 'start' to select menu items
         if player:pressed('action') or player:pressed('start') then
+            print('action or start')
             self:executeChoice()
             break
         end
