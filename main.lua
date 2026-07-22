@@ -2,6 +2,7 @@ local Gamestate = require "lib.hump.gamestate"
 local moonshine = require "lib.moonshine"
 local push = require "lib.push"
 local input = require "src.input"
+-- local shakes = require "src.system.shakes"
 
 -- Load your sequential states
 local IntroState = require "src.states.intro"
@@ -40,18 +41,24 @@ function love.update(dt)
     if #input.players > 0 then
         input:update() 
     end
+    
+    CurrentTime = love.timer.getTime()
 end
 
 -- Override love.draw so Moonshine wraps around whatever HUMP is currently drawing
 function love.draw()
     effect(function()
         push:start()
+        
             Gamestate.current():draw()
+       
         push:finish()
     end)
+
 end
 
 -- Crucial: Pass window adjustments directly to the push library
 function love.resize(w, h)
     push:resize(w, h)
 end
+

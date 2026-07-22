@@ -3,6 +3,7 @@ local Timer = require "lib.hump.timer"
 local input = require "src.input"
 local MenuState = require "src.states.menu"
 local themes = require "src.preferences.themes"
+local shakes = require "src.system.shakes"
 
 local title = {}
 
@@ -20,11 +21,15 @@ end
 
 function title:update(dt)
     Timer.update(dt)
+    CurrentTime = love.timer.getTime()
     
     -- 1. Check if Keyboard pressed Enter/Return to claim Player 1
     if love.keyboard.isDown("return") or love.keyboard.isDown("space") then
+        shakes.trigger(shakes.current.power,1.0,CurrentTime)
         input:registerPlayer("keyboard", nil)
-        Gamestate.switch(MenuState)
+        Timer.after(1.0, function()
+            Gamestate.switch(MenuState)
+        end)
         return
     end
     
@@ -32,8 +37,11 @@ function title:update(dt)
     local joysticks = love.joystick.getJoysticks()
     for _, joystick in ipairs(joysticks) do
         if joystick:isGamepadDown("start") or joystick:isGamepadDown("a") then
+            shakes.trigger(shakes.current.power,1.0,CurrentTime)
             input:registerPlayer("controller", joystick)
-            Gamestate.switch(MenuState)
+            Timer.after(1.0, function()
+                Gamestate.switch(MenuState)
+            end)
             return
         end
     end
@@ -41,6 +49,7 @@ end
 
 function title:draw()
     love.graphics.clear(themes.current.background) 
+    shakes.drawShakeScreen(shakes.current.power, CurrentTime)
     
     love.graphics.setNewFont(24)
     love.graphics.setColor(themes.current.primary)

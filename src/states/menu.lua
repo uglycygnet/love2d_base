@@ -1,5 +1,6 @@
 local input = require "src.input"
 local themes = require "src.preferences.themes"
+local shakes = require "src.system.shakes"
 
 local menu = {}
 
@@ -12,6 +13,7 @@ function menu:enter()
 end
 
 function menu:update(dt)
+    CurrentTime = love.timer.getTime()
     -- update flashing join text
     self.timer = (self.timer or 0) + dt
     if self.timer >= 0.6 then
@@ -37,10 +39,12 @@ function menu:update(dt)
 
     for _, player in ipairs(input.players) do
         if player:pressed('down') then
+            shakes.trigger(shakes.current.power,0.25,CurrentTime)
             print('down')
             self.selected = self.selected + 1
             if self.selected > #self.options then self.selected = 1 end
         elseif player:pressed('up') then
+            shakes.trigger(shakes.current.power,0.25,CurrentTime)
             print('up')
             self.selected = self.selected - 1
             if self.selected < 1 then self.selected = #self.options end
@@ -57,7 +61,8 @@ end
 
 
 function menu:draw()
-    love.graphics.clear(themes.current.background) -- dark background
+    love.graphics.clear(themes.current.background)
+    shakes.drawShakeScreen(shakes.current.power, CurrentTime)
     
     local startY = 200
     local spacing = 50
